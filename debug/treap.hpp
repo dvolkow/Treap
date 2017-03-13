@@ -14,7 +14,9 @@
 #include <cassert>
 #include <ctime>
 
-//#define DEBUG false
+//#define DEBUG 1
+#define FAST_ALLOCATION 1
+//#define CONSTRUCTOR_FROM_NODE 1
 
 #ifdef DEBUG 
 	#include <iostream>
@@ -23,12 +25,14 @@
 
 namespace bst {
 
+#ifdef FAST_ALLOCATION 
 	/**
 	  * For fast allocation 
 	  */
 	const size_t MAX_MEM = 1e8;
 	size_t mpos = 0;
 	char mem[MAX_MEM];
+#endif		
 
 #ifdef DEBUG 
 	size_t counter_allocate = 0;
@@ -65,6 +69,7 @@ namespace bst {
 			this->deleted_ = false;
 		}
 
+#ifdef CONSTRUCTOR_FROM_NODE 
 		node(const node & another) 
 		{
 			this->key_ = another.key_;
@@ -75,12 +80,23 @@ namespace bst {
 			this->count_ = another.count_;
 			this->deleted_ = another.deleted_;
 		}
+#endif		
 
 		node(const T& key, const int priority) : priority_(priority), 
 											l(nullptr), r(nullptr), count_(0), key_(key), deleted_(false) { }
 
 		void up_count() { ++count_;}
-		void down_count() { if(count_ > 0) --count_; /*else std::cerr << "down_count for count < 1\n";*/ }
+
+		void down_count() 
+		{ 
+			if(count_ > 0) 
+					--count_; 
+#ifdef DEBUG 
+			else 
+				std::cerr << "down_count for count < 1\n";
+#endif		
+		}
+
 		unsigned int get_count() { return count_; }
 		int get_priority() { return priority_; }
 		const T get_key() { return key_; }
@@ -107,6 +123,7 @@ namespace bst {
 			}
 		}
 			
+#ifdef FAST_ALLOCATION 
 		void * operator new(size_t n) 
 		{
 			assert((mpos += n) <= MAX_MEM);
@@ -117,6 +134,7 @@ namespace bst {
 		}
 	
 		void operator delete(void *) noexcept { }
+#endif		
 	};
 
 
@@ -126,7 +144,6 @@ namespace bst {
 		typedef node<T>* pnode;
 	private:	
 		pnode root_;
-		//std::vector<node<T> > body_;
 		T key_;
 		size_t size_;
 		size_t deleted_count_;
@@ -179,12 +196,6 @@ namespace bst {
 		 */
 		void insert(T key)
 		{
-			/*
-			if (size_ > 2)
-			{
-				body_.push_back(node<T>(key));
-				insert_(root_, &body_[body_.size() - 1]);
-			} else { */
 			if (revive_(root_, key))
 			{
 				down_deleted_count_();
@@ -196,7 +207,6 @@ namespace bst {
 			if(!find_(root_, key)) {
 				insert_(root_, new node<T>(key));
 			}
-			//}
 			success_ = false;
 		}
 
@@ -369,6 +379,18 @@ namespace bst {
 				insert_(root->r, it);
 
 			update_count_(root);
+		}
+
+		/**
+		 * Insert in empty treap
+		 */
+		void insert_in_empty_(pnode & root, pnode it)
+		{
+			root_ = it;
+			update_count_(root_);
+			up_size();
+			this->key_ = it->get_key();
+			return;
 		}
 
 
