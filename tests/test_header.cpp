@@ -1,4 +1,4 @@
-#include "treap.hpp"
+#include "../debug/treap.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -137,6 +137,9 @@ int main()
 	std::string buff_str;
 	int number;
 
+#ifdef FAST_ALLOCATION
+	std::cout << "Fast allocation enabled.\n"; 
+#endif		
 	while(fin >> buff_str >> number)
 	{
 #ifdef DEBUG 

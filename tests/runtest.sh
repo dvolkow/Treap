@@ -4,6 +4,11 @@ count=0
 limit=$1
 EXEPTION="EXEPTION"
 
+#---cборка необходимого:
+make newtest
+make simplejava
+make treap
+
 gen()
 {
     echo "***** Generation: $count"
@@ -46,5 +51,8 @@ do
 	count=`expr $count + 1`
 	echo "============================================="
 done
+
+#----уборка
+make clean 
 
 echo "Test passed!"
