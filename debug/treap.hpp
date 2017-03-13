@@ -40,7 +40,7 @@ namespace bst {
 
 	std::mt19937 gen; 
 
-	template<typename T>
+	template<typename T, class Compare = std::less<T> >
 	class node {
 	public:	
 		node * l;
@@ -228,7 +228,6 @@ namespace bst {
 		{
 			if (soft_remove_(root_, key)) 
 			{
-				down_size();
 				up_deleted_count_();
 				return true;
 			}
