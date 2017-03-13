@@ -4,6 +4,10 @@
 
 //#define TEST_ERASE 1
 #define TEST_REMOVE 1
+
+#define SET_VS_TREAP 1
+//#define CASUAL 1
+
 #ifdef DEBUG 
 	#define TEST_WAS 1
 	#define TEST_DELETED_COUNT 1
@@ -12,7 +16,13 @@
 using namespace bst;
 
 const char* in_name_file = {"input.txt"};
+#ifdef CASUAL 
 const char* out_name_file = {"output.txt"};
+#endif		
+#ifdef SET_VS_TREAP 
+const char* out_name_file = {"output_treap.txt"};
+#endif		
+
 
 inline void caller(const std::string & op, const int number, std::ofstream & fout, treap<int> & tree)
 {

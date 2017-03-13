@@ -15,9 +15,9 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-	const size_t n = 6; //--диапазон выпадаемых индексов, в нашем случае не больше 6
-	const int m = 40000; //--количество операций
-	const int s = 100; //--размах принимаемых значений для элементов (дерева, в нашем случае)
+	const size_t n = 5; //--диапазон выпадаемых индексов, в нашем случае не больше 6
+	const int m = atoi(argv[2]); //--количество операций
+	const int s = atoi(argv[3]); //--размах принимаемых значений для элементов (дерева, в нашем случае)
 	const int seed = atoi(argv[1]); // +  abs((2 * atoi(argv[1])) | (atoi(argv[1]) << 3));
 
 	std::cout << "Seed = " << seed << endl;

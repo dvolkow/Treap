@@ -1,15 +1,14 @@
 #!/bin/bash -eu
 
-OPERATION_COUNT=50
+OPERATION_COUNT=1000000
 RANGE=10
 count=0
 LIMIT=$1
-EXEPTION="EXEPTION"
 
 #---cборка необходимого:
-make newtest
-make simplejava
-make treap
+make 'newtest'
+make 'treap'
+make 'set'
 
 gen()
 {
@@ -19,39 +18,35 @@ gen()
     return $?
 }
 
-run()
+run_treap()
 {
-    echo "***** Run: $count"
+    echo "***** Run treap: $count"
 	time ./treap
     return $?
 
 }
 
-java_run()
+run_set()
 {
-	echo "***** Java: $count"
-	time java SimpleTree
+	echo "***** Run set: $count"
+	time './set'
     return $?
 }
 
 while [ "$count" -lt "$LIMIT" ] 
 do
 	gen
-	run
-	java_run
+	run_treap
+	run_set
 
-	if [[ `cat output_java.txt | grep "EXEPTION"` =~ $EXEPTION ]]; then
-		echo $EXEPTION
-	else	
-	    diff -q output.txt output_java.txt
-	    echo "Success!"
-	fi
+	diff -q output_set.txt output_treap.txt
+	echo "Success!"
 
 	count=`expr $count + 1`
 	echo "============================================="
 done
 
 #----уборка
-make clean 
+#make clean 
 
 echo "Test passed!"
