@@ -13,7 +13,6 @@ gen()
 {
     echo "***** Generation: $count"
  	./gentest $count
-# 	sleep 0.7
 	echo "============================================="
     return $?
 }
@@ -22,7 +21,6 @@ run()
 {
     echo "***** Run: $count"
 	time ./treap
-#	sleep 0.7
     return $?
 
 }
@@ -31,7 +29,6 @@ java_run()
 {
 	echo "***** Java: $count"
 	time java SimpleTree
-#	sleep 1
     return $?
 }
 
