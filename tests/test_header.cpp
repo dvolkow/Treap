@@ -5,7 +5,7 @@
 //#define TEST_ERASE 1
 #define TEST_REMOVE 1
 
-#define SET_VS_TREAP 1
+//#define SET_VS_TREAP 1
 //#define CASUAL 1
 
 #ifdef DEBUG 

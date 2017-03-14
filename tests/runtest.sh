@@ -5,11 +5,18 @@ RANGE=10
 count=0
 LIMIT=$1
 EXEPTION="EXEPTION"
+TRESHOLD=1000000
 
 #---cборка необходимого:
-make newtest
-make simplejava
-make treap
+#---cборка необходимого:
+if [[ "$OPERATION_COUNT" -lt "$TRESHOLD"  ]]; then
+	make 'utest' #---последовательная 
+else
+	make 'paralleltest' #---параллельная 
+fi
+
+make 'debug_casual'
+make 'simplejava'
 
 gen()
 {

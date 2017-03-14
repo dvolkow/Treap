@@ -1,19 +1,25 @@
 #!/bin/bash -eu
 
-OPERATION_COUNT=1000000
-RANGE=10
+OPERATION_COUNT=4000
+RANGE=400
 count=0
 LIMIT=$1
+TRESHOLD=1000000
 
 #---cборка необходимого:
-make 'newtest'
-make 'treap'
+if [[ "$OPERATION_COUNT" -lt "$TRESHOLD"  ]]; then
+	make 'utest' #---последовательная 
+else
+	make 'paralleltest' #---параллельная 
+fi
+
+make 'debug_set_vs_treap'
 make 'set'
 
 gen()
 {
     echo "***** Generation: $count"
- 	./gentest $count $OPERATION_COUNT $RANGE 
+ 	time ./gentest $count $OPERATION_COUNT $RANGE 
 	echo "============================================="
     return $?
 }
