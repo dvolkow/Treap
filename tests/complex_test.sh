@@ -26,7 +26,8 @@ else
 	make 'paralleltest' #---параллельная 
 fi
 
-make 'debug_casual'
+make 'debug_set_vs_treap'
+make 'set'
 make 'simplejava'
 
 gen()
@@ -37,34 +38,48 @@ gen()
     return $?
 }
 
-run()
+run_treap()
 {
-    echo "***** Run: $count"
+    echo "***** Run : TREAP # $count"
 	time ./treap
     return $?
 
 }
 
-java_run()
+run_set()
 {
-	echo "***** Java: $count"
+    echo "***** Run: SET # $count"
+	time './set'
+    return $?
+
+}
+
+run_java()
+{
+	echo "***** Run: JAVA_STUPID_TREE # $count"
 	time java SimpleTree
     return $?
 }
 
 while [ "$count" -lt "$LIMIT" ] 
 do
-	gen
-	run
-	java_run
+	gen 
+	run_treap
+	run_set 
+ 	run_java
 
 	if [[ `cat output_java.txt | grep "EXCEPTION"` =~ $EXCEPTION ]]; then
-		echo $EXCEPTION
+		echo "$EXCEPTION, test failed!"
 		ex_counter=`expr $ex_counter + 1` 
-	else	
-	    diff -q output.txt output_java.txt
-	    echo "Success!"
+ 	else	
+		echo "Compare result: treap & stupid_BST:"
+	    diff -q output_treap.txt output_java.txt
+		echo "Success!"
+		echo "Compare result: set & treap:"
+		diff -q output_set.txt output_treap.txt
+		echo "Success!"
 	fi
+
 
 	count=`expr $count + 1`
 	echo "============================================="

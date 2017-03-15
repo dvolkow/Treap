@@ -126,7 +126,7 @@ void printTree(ofstream & fout)
 }
 #endif		
 
-int main(int argc, char const *argv[])
+int main()
 {
 	ifstream fin;
 	fin.open(in_name_file);

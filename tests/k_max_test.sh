@@ -17,52 +17,32 @@ LIMIT=$1
 TRESHOLD=1000000
 
 #---cборка необходимого:
-if [[ "$OPERATION_COUNT" -lt "$TRESHOLD"  ]]; then
-	make 'utest' #---последовательная 
-else
-	make 'paralleltest' #---параллельная 
-fi
 
-make 'debug_set_vs_treap'
-make 'set'
+make 'k_max_test'
 
 gen()
 {
     echo "***** Generation: $count"
- 	time ./gentest $count $OPERATION_COUNT $RANGE 
+ 	./gentest $count $OPERATION_COUNT $RANGE 
 	echo "============================================="
     return $?
 }
 
-run_treap()
+run()
 {
-    echo "***** Run treap: $count"
-	time ./treap
+    echo "***** Run: $count"
+	time ./treap 
     return $?
 
-}
-
-run_set()
-{
-	echo "***** Run set: $count"
-	time './set'
-    return $?
 }
 
 while [ "$count" -lt "$LIMIT" ] 
 do
 	gen
-	run_treap
-	run_set
-
-	diff -q output_set.txt output_treap.txt
-	echo "Success!"
+	run
 
 	count=`expr $count + 1`
 	echo "============================================="
 done
-
-#----уборка
-#make clean 
 
 echo "Test passed!"

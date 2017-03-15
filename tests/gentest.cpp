@@ -18,9 +18,16 @@ using namespace std;
 
 ofstream fout;
 const char* out_name_file = {"input.txt"}; //--название выходного файла
-//--варианты операций, дублирование для повышения частоты выпадения вставок:
-std::vector<std::string> OPERATIONS = {"delete", "exists", "next", "prev", "insert", "insert"}; 
-const size_t n = 5; //--диапазон выпадаемых индексов, в нашем случае не больше 6
+
+#ifdef K_MAX_TEST 
+	//--"0"--вывод k-max, "1"--добавление, "-1"--удаление
+	std::vector<std::string> OPERATIONS = {"1", "0", "-1"}; 
+	const size_t n = 3; //--диапазон выпадаемых индексов, в нашем случае не больше 6
+#else
+	//--варианты операций, дублирование для повышения частоты выпадения вставок:
+	std::vector<std::string> OPERATIONS = {"delete", "exists", "next", "prev", "insert", "insert"}; 
+	const size_t n = 5; //--диапазон выпадаемых индексов, в нашем случае не больше 6
+#endif		
 
 #ifdef PARALLEL_ 
 
@@ -136,6 +143,9 @@ int main(int argc, char const *argv[])
 #endif		
 	
 #ifdef SERIAL_ 
+#ifdef K_MAX_TEST 
+	fout << OPERATION_COUNT << "\n";
+#endif		
 	for (int i = 0; i != OPERATION_COUNT; ++i)
 	{
 		fout << OPERATIONS[gen() % n] << " " << static_cast<int>(gen() % RANGE) - static_cast<int>(gen() % ((3 * RANGE) / 2)) << "\n";

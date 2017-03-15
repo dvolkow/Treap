@@ -14,6 +14,7 @@
 #include <cassert>
 #include <ctime>
 
+//#define DEBUG 1
 #define FAST_ALLOCATION 1
 //#define CONSTRUCTOR_FROM_NODE 1
 
@@ -60,7 +61,7 @@ namespace bst {
 
 		node(const T& key) {
 			this->key_ = key;
-			this->priority_ = (int)gen();
+			this->priority_ = static_cast<int>(gen());
 			this->l = NULL;
 			this->r = NULL;
 			this->count_ = 1;
@@ -71,7 +72,7 @@ namespace bst {
 		node(const node & another) 
 		{
 			this->key_ = another.key_;
-			this->priority_ = (int)gen();
+			this->priority_ = static_cast<int>(gen());
 			this->l = another.l;
 			this->r = another.r;
 			this->count_ = another.count_;
@@ -148,6 +149,7 @@ namespace bst {
 
 	public:
 		treap() : root_(nullptr), key_((T)0), size_(0), deleted_count_(0),  success_(0) {gen.seed(time(0));};
+			
 		
 		/**
 		 * Поиск элемента (не находит, если было мягкое удаление)
@@ -204,7 +206,6 @@ namespace bst {
 			if(!find_(root_, key)) {
 				insert_(root_, new node<T>(key));
 			}
-
 			success_ = false;
 		}
 
@@ -254,18 +255,14 @@ namespace bst {
 		bool get_success() { return success_; }
 
 		/**
-		 * Размер дерева O(1)
+		 * Размер дерева
 		 */
 		inline size_t size()
 		{
 			return root_ ? root_->get_count() : 0;
+//			return size_;
 		}
 
-		/** 
-		 * @DEPRECATED
-		 *
-		 * O(Log(N)) !!!!  Размер дерева
-		 */
 		size_t size_n()
 		{
 			size_t tmp = 0;
@@ -403,6 +400,17 @@ namespace bst {
 
 		T k_max_(pnode & root, unsigned int k)
 		{
+			/*
+			if (!root) { success_ = false; return T(); }
+
+			if (root->get_count() == k) { success_ = true; return root->get_key(); }
+			else if (root->get_count() < k) return k_max_(root->l, k); 
+			else if (root->get_count() > k) return k_max_(root->r, --k);
+
+			success_ = false;
+			return root->get_key();
+			*/
+
 			pnode current = root;
 			while (current)
 			{
@@ -457,6 +465,7 @@ namespace bst {
 	     */
 		bool find_(pnode & root, const T key)
 		{
+		//	if (!root_) return false;
 			if (!root) return false;
 
 			if (root->get_key() == key && !root->isDeleted()) return true;
@@ -622,3 +631,83 @@ namespace bst {
 }
 
 #endif 
+
+#include <fstream>
+#include <iostream>
+
+#define TEST_ERASE 1
+//#define TEST_REMOVE 1
+
+
+#define K_MAX_TEST 1
+
+using namespace bst;
+
+const char* in_name_file = {"input.txt"};
+const char* out_name_file = {"output.txt"};
+
+inline void caller(const std::string & op, const int number, std::ofstream & fout, treap<int> & tree)
+{
+	if (op == "insert" 
+#ifdef K_MAX_TEST
+		|| op == "1" 
+#endif		
+		)
+	{
+		if (!tree.find(number))
+		{
+			tree.insert(number);
+		}
+		return;
+	}
+
+	if (op == "delete"
+#ifdef K_MAX_TEST
+		|| op == "-1" 
+#endif		
+		)
+	{
+//		if (tree.find(number))
+//		{
+#ifdef TEST_REMOVE 
+			tree.remove(number);
+#endif		
+#ifdef TEST_ERASE 
+			tree.erase(number);
+#endif		
+//		}
+		return;
+	}
+
+#ifdef K_MAX_TEST
+	if (op == "0")
+	{
+		fout << tree.k_max(number - 1) << "\n";
+	} 
+#endif		
+
+}
+
+
+int main(int , char const *argv[])
+{
+	treap<int> my_tree;
+
+	std::ifstream fin;
+	fin.open(in_name_file);
+
+	std::ofstream fout;
+	fout.open(out_name_file);
+	
+
+	int number;
+	std::string buff_str;
+	int COUNT_OPERATION = 0;
+	fin >> COUNT_OPERATION;
+
+	for (int i = 0; i < COUNT_OPERATION; ++i)
+	{
+		fin >> buff_str >> number; 
+		caller(buff_str, number, fout, my_tree);	
+	}
+}

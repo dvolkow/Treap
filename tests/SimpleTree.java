@@ -358,7 +358,7 @@ public class SimpleTree {
                 try{
                     tree.exec(line, outp);
                 } catch (Exception ex) {
-                    outp.write("EXEPTION\n");
+                    outp.write("EXCEPTION\n");
                     outp.flush();
                 }
             }
