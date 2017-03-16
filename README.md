@@ -12,9 +12,11 @@ Treap = tree + heap!
 
  Defined in header <treap.hpp>
 
-``` namespace bst { 
+```
+namespace bst { 
    template<typename T> class treap
- } ```
+ }
+ ```
  
  
 ## Member types:
