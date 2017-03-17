@@ -12,9 +12,11 @@ Treap = tree + heap!
 
  Defined in header <treap.hpp>
 
-``` namespace bst { 
+```
+namespace bst { 
    template<typename T> class treap
- } ```
+ }
+ ```
  
  
 ## Member types:
@@ -39,6 +41,8 @@ Treap = tree + heap!
 
 8. ```bool get_success()``` -- позволяет узнать, корректно ли завершилась операция  ```upper_bound``` и ```previous``` -- был ли искомый элемент найден
 
-9. ```size_t size_n()``` -- размер дерева (асимптотика O(n))
+9. ```size_t size()``` -- размер деревa
+
+10. ```T k_max(T key)``` --- возвращает k-й максимум в дереве
 
 
