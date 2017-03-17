@@ -260,11 +260,11 @@ int main(
 #endif		
 	}
 
-	size_t stree = my_tree.size_n();
+	size_t stree = my_tree.size();
 	std::cout << "============Stats===========\n";
 	std::cout << "Size node: " << sizeof(node<int>) << " byte\n";
-//	std::cout << "Final size: " << my_tree.size() << "\n";
-	std::cout << "Final count: " << stree << " -- " << my_tree.size() << "\n";
+	std::cout << "Final size: " << my_tree.size() << "\n";
+//	std::cout << "Final count: " << stree << " -- " << my_tree.size() << "\n";
 #ifdef TEST_DELETED_COUNT
 	std::cout << "Final deleted: " << my_tree.deleted_count() 
 			  <<  " aka " << (float)my_tree.deleted_count() / stree * 100 << "%\n";
