@@ -30,16 +30,14 @@
 namespace bst {
 
 #ifdef FAST_ALLOCATION 
-	/**
-	  * For fast allocation 
-	  */
-	const size_t MAX_MEM = 1e8; // -- размер буфера
+	// For fast allocation 
+	const size_t MAX_ALLOC_MEM_SIZE = 1e8; 
 	size_t mpos = 0;
-	char mem[MAX_MEM]; // -- буфер
+	char mem_buffer[MAX_ALLOC_MEM_SIZE];
 #endif		
 
 #ifdef STATS 
-	size_t counter_allocate = 0; // -- счетчик аллокаций
+	size_t counter_allocate = 0; 
 #endif		
 
 	std::mt19937 gen;  // -- ГПСЧ
@@ -53,14 +51,14 @@ namespace bst {
 	class node {
 
 	public:	
-		node * l; // -- левый потомок
-		node * r; // -- правый потомок
+		node * l; 
+		node * r;
 
 	private:
 		T key_; // -- пользовательский ключ
-		int priority_; // -- приоритет
+		int priority_; 
 		unsigned int count_; // -- размер поддерева текущей вершины
-		bool deleted_; // -- флаг для быстрого удаления (remove)
+		bool deleted_; // -- для удаления (remove)
 
 	public:	
 		node() : l(nullptr), r(nullptr), count_(0), deleted_(false) { }
@@ -69,6 +67,7 @@ namespace bst {
 							 priority_((int)gen()), count_(1), deleted_(false) {}
 
 #ifdef CONSTRUCTOR_FROM_NODE 
+		//TODO init list!
 		node(const node & another) 
 		{
 			this->key_ = another.key_;
@@ -135,11 +134,11 @@ namespace bst {
 #ifdef FAST_ALLOCATION 
 		void * operator new(size_t n) noexcept
 		{
-			assert((mpos += n) <= MAX_MEM && "Ошибка аллокатора");
+			assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора");
 #ifdef STATS 
 			++counter_allocate;
 #endif		
-			return (void *)(mem + mpos - n);
+			return (void *)(mem_buffer + mpos - n);
 		}
 	
 		void operator delete(void *) noexcept { }
