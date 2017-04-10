@@ -114,15 +114,9 @@ namespace bst {
 			}
 		}
 
-        /**
-         * Меняет значение поля deleted_
-         */
+		//Меняет значение поля deleted_
 		void invertDel() { deleted_ = !deleted_; }
 
-		/**
-		 * Геттеры для соответствующих полей:
-		 * @return
-		 */
 		unsigned int get_count() const { return count_; }
 		int get_priority() const { return priority_; }
 		const T get_key() const { return key_; }
