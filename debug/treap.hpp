@@ -1,5 +1,5 @@
 //============================================================================
-// Name       	 : TREAP
+// Name       	 : treap.hpp
 // Author     	 : Wolkow Daniel
 // Version    	 : 0.4
 // Description	 : This hpp implements treap = tree + heap, Binary Search Tree. 
