@@ -1,1 +1,3 @@
-test/old/*
+tests/old
+tests/debug
+tests/run_test
