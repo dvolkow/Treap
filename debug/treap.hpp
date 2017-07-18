@@ -12,7 +12,7 @@
 #include <random>
 #include <cassert>
 #include <ctime>
-#include <memory>
+//#include <memory>
 
 #define FAST_ALLOCATION 1
 
@@ -104,16 +104,16 @@ namespace bst
     		{}
 
  #ifdef FAST_ALLOCATION 
-		void * operator new(size_t n) noexcept
-		{
-			assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
-			return reinterpret_cast<void*>(mem_buffer + mpos - n);
-		}
+			void * operator new(size_t n) noexcept
+			{
+				assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
+				return reinterpret_cast<void*>(mem_buffer + mpos - n);
+			}
 	
-		void operator delete(void *) noexcept { }
+			void operator delete(void *) noexcept { }
 #endif
 
-   		~node() {}
+   			~node() {}
 
             /**
              * Модификаторы поля count_:
@@ -138,7 +138,7 @@ namespace bst
              */
     		bool testDel()
     		{
-    			if (!isDeleted())
+    			if (!deleted_)
     			{
     				invertDel();
     				return false;
@@ -150,15 +150,6 @@ namespace bst
        	      * Меняет значение поля deleted_
        	      */
     		void invertDel() { deleted_ = !deleted_; }
-
-    		/**
-    		 * Геттеры для соответствующих полей:
-    		 * @return
-    		 */
-    		size_t get_count() const { return count_; }
-    		size_t get_priority() const { return priority_; }
-    		const T get_key() const { return key_; }
-    		bool isDeleted() const { return deleted_; }
 
     	};
     	//---------------------------------------------------------------------
@@ -244,7 +235,7 @@ namespace bst
     	void replace_in_head(const size_t left_bound, const size_t right_bound)
     	{
 #ifdef DEBUG 
-    		assert(left_bound <= root_->get_count() && right_bound <= root_->get_count());
+    		assert(left_bound <= root_->count_ && right_bound <= root_->count_);
 #endif    	
     		/**
     		 * Режем раз:
@@ -316,7 +307,7 @@ namespace bst
          */
     	size_t size()
     	{
-    		return root_ ? root_->get_count() : 0;
+    		return root_ ? root_->count_ : 0;
     	}
 
         /**
@@ -338,7 +329,7 @@ namespace bst
      	 * Даёт размер поддеревьев для данного корня: 
      	 */
     	size_t get_count_(const pnode root) {
-    		return root ? root->get_count() : 0;
+    		return root ? root->count_ : 0;
     	}
 
     	/**
@@ -360,7 +351,7 @@ namespace bst
     	{
     		if (!l || !r)
     			root = l ? l : r;
-    		else if (l->get_priority() > r->get_priority())
+    		else if (l->priority_ > r->priority_)
     			merge(l->r, l->r, r), root = l;
     		else
     			merge(r->l, l, r->l), root = r;
@@ -379,7 +370,7 @@ namespace bst
     	{
     		if (!root)
     			l = r = NULL;
-    		else if (key < root->get_key()) {
+    		else if (key < root->key_) {
     			split(root->l, key, l, root->l); 
     			r = root;
     		}
@@ -404,18 +395,18 @@ namespace bst
     			root_ = it;
     			update_count_(root_);
     			up_size();
-    			this->key_ = it->get_key();
+    			this->key_ = it->key_;
     			return;
     		}
 
     		/* Если только один элемент! */
     		if (size_ == 1)
     		{
-    			if (root_->get_key() > it->get_key())
+    			if (root_->key_ > it->key_)
     				root_->l = it;
-    			else if (root_->get_key() < it->get_key()) 
+    			else if (root_->key_ < it->key_) 
     				root_->r = it;
-    			else if (root_->get_key() == it->get_key())
+    			else if (root_->key_ == it->key_)
     				return;
 
     			update_count_(root);
@@ -426,15 +417,15 @@ namespace bst
 
     		if (!root)																																				
     			root = it, up_size();
-    		else if (it->get_priority() > root->get_priority())
+    		else if (it->priority_ > root->priority_)
     			/* Останавливаемся на первом элементе, в котором значение
     		 	 * приоритета оказалось меньше: 
     		 	 */
-    			split(root, it->get_key(), it->l, it->r),  root = it, up_size();
-    		else if (it->get_key() < root->get_key())
+    			split(root, it->key_, it->l, it->r),  root = it, up_size();
+    		else if (it->key_ < root->key_)
     			/* Спускаемся по дереву, как в обычном бинпоиске */	
     			insert_(root->l, it);
-    		else if (it->get_key() > root->get_key())
+    		else if (it->key_ > root->key_)
     			insert_(root->r, it);
 
     		update_count_(root);
@@ -450,7 +441,7 @@ namespace bst
     		root_ = it;
     		update_count_(root_);
     		up_size();
-    		this->key_ = it->get_key();
+    		this->key_ = it->key_;
     		return;
     	}
 
@@ -461,7 +452,7 @@ namespace bst
     	 */
     	size_t sOf_(pnode & root)
     	{	
-    		return root != nullptr ? root->get_count() : 0;
+    		return root != nullptr ? root->count_ : 0;
     	} 
 
     	/**
@@ -478,7 +469,7 @@ namespace bst
     			size_t sR = sOf_(current->r);
     			if (sR == k) {
     			 	success_ = true; 
-    			 	return current->get_key(); 
+    			 	return current->key_; 
     			}
 
     			current = sR > k ? current->r : current->l;
@@ -502,10 +493,10 @@ namespace bst
     	 */
     	void remove_(pnode & root, const T key)
     	{
-    		if (root->get_key() == key)
+    		if (root->key_ == key)
     			merge(root, root->l, root->r), down_size();
     		else
-    			remove_(key < root->get_key() ? root->l : root->r, key);
+    			remove_(key < root->key_ ? root->l : root->r, key);
     		update_count_(root);
     	}
 
@@ -519,10 +510,10 @@ namespace bst
     	{
     		if (!root) return false;
 
-    		if (root->get_key() == key) 
+    		if (root->key_ == key) 
     			return root->testDel() ? false : true ; 
 
-    		return root->get_key() < key ? soft_remove_(root->r, key) : soft_remove_(root->l, key); 
+    		return root->key_ < key ? soft_remove_(root->r, key) : soft_remove_(root->l, key); 
     	}
 
     	/**
@@ -535,13 +526,13 @@ namespace bst
     	{
     		if (!root) return false;
 
-    		if (root->get_key() == key && !root->isDeleted()) 
+    		if (root->key_ == key && !root->deleted_) 
     			return true;
 
-    		if (root->get_key() > key) 
+    		if (root->key_ > key) 
     			return find_(root->l, key);
 
-    		if (root->get_key() < key) 
+    		if (root->key_ < key) 
     			return find_(root->r, key);
 
     		return false;
@@ -557,11 +548,11 @@ namespace bst
             if (!root) return;
 
             print_(root->l);
-            if (!root->isDeleted())
-                std::cout << "(" << root->get_key() <<  ", " << root->get_count() << /*  ", prior= " <<
+            if (!root->deleted_)
+                std::cout << "(" << root->key_ <<  ", " << root->count_ << /*  ", prior= " <<
     						root->prior<<*/ ") ";
             else
-                std::cout << "(D-" << root->get_key() << /* ", " << root->count  <<  ", prior= " <<
+                std::cout << "(D-" << root->key_ << /* ", " << root->count  <<  ", prior= " <<
     						root->prior<<*/ ") ";
 
             print_(root->r);
@@ -587,7 +578,7 @@ namespace bst
 
     		while (current) 
     		{
-    			if (current->get_key() > key)
+    			if (current->key_ > key)
     			{
     				result = current;
     				current = current->l;
@@ -599,12 +590,12 @@ namespace bst
     		if (!result) {
     		 	success_ = false; 
     			return key;
-    		} else if (result->isDeleted()) {
+    		} else if (result->deleted_) {
     		 	success_ = false; 
-    			return upper_bound_(root_, result->get_key());
+    			return upper_bound_(root_, result->key_);
     		} else {
     		 	success_ = true; 
-    			return result->get_key();
+    			return result->key_;
     		} 
     	}
 
@@ -625,7 +616,7 @@ namespace bst
 
     		while (current) 
     		{
-    			if (current->get_key() < key)
+    			if (current->key_ < key)
     				result = current, current = current->r;
     			else 
     				current = current->l;
@@ -636,15 +627,15 @@ namespace bst
     		 	success_ = false; 
     			return key;
     		} 
-    		else if (result->isDeleted()) 
+    		else if (result->deleted_) 
     		{
     		 	success_ = false; 
-    			return previous_(root_, result->get_key());
+    			return previous_(root_, result->key_);
     		} 
     		else 
     		{
     		 	success_ = true; 
-    			return result->get_key();
+    			return result->key_;
     		}
     	}
 
@@ -658,15 +649,15 @@ namespace bst
     	{
     		if (!root) return false;
 
-    		if (root->get_key() == key)
+    		if (root->key_ == key)
     		{
-    			if (root->isDeleted())
+    			if (root->deleted_)
     						root->invertDel();
     			return true;
     		} 
-    		else if (root->get_key() > key) 
+    		else if (root->key_ > key) 
     			return revive_(root->l, key);
-    		else if (root->get_key() < key)
+    		else if (root->key_ < key)
     			return revive_(root->r, key);
 
     		return false;	
@@ -683,9 +674,9 @@ namespace bst
     	{
     		if (!root) return false;
 
-    		if (root->get_key() == key) return true;
-    		if (root->get_key() > key) return was_(root->l, key);
-    		if (root->get_key() < key) return was_(root->r, key);
+    		if (root->key_ == key) return true;
+    		if (root->key_ > key) return was_(root->l, key);
+    		if (root->key_ < key) return was_(root->r, key);
     		return false;
     	}
 
