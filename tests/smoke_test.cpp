@@ -1,5 +1,6 @@
 #include "../debug/treap.hpp"
 #include <iostream>
+#include <set>
 
 int main()
 {
@@ -16,6 +17,9 @@ int main()
 	std::cout << a() << "\n";
 	std::cout << a() << "\n";
 
-	std::cout << sizeof(my_tree) << "\n";
+	std::set<int> set_int;
+
+	std::cout << "your sizeof: " << sizeof(my_tree) << "\n";
+	std::cout << "std::set sizeof: " << sizeof(set_int) << "\n";
 	std::cout << sizeof(bst::rand_) << "\n";
 }

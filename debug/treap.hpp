@@ -65,6 +65,8 @@ namespace bst
 
     		node() : l(nullptr), 
     		         r(nullptr), 
+    				 key_(0),
+    		         priority_(rand_()), 
     				 count_(0), 
     				 deleted_(false) 
     		{}
@@ -77,12 +79,12 @@ namespace bst
     							 deleted_(false) 
     		{}
 
-    		node(const node & another) : l(another->l), 
-    		                             r(another->r),
+    		node(const node & another) : l(another.l), 
+    		                             r(another.r),
+    									 key_(another.key_),
     		                             priority_(rand_()), 
-    									 count_(another->count_), 
-    									 key_(another->key_),
-    				                     deleted_(another->deleted_)
+    									 count_(another.count_), 
+    				                     deleted_(another.deleted_)
     		{}
 
     		node(const T& key, const size_t priority) : l(nullptr), 
@@ -146,7 +148,7 @@ namespace bst
 
     	typedef node* pnode;
 
-    	//std::vector<node> tree_;
+//    	std::vector<node> tree_;
 
     	pnode root_; // -- корень
     	T key_; // -- ключ, который был положен в корень первым
@@ -160,7 +162,7 @@ namespace bst
     	          key_(T(0)), 
     			  size_(0), 
     			  deleted_count_(0),
-    			  success_(0) 
+    			  success_(false)
     	{
     		rand_ = Randomizer();
     	}
@@ -216,7 +218,8 @@ namespace bst
     			return;
     		}
 
-    		if(!find_(root_, key)) {
+    		if(!find_(root_, key))
+			{
     			insert_(root_, new node(key));
     		}
 
