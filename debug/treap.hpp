@@ -5,8 +5,6 @@
 // Description	 : This hpp implements treap = tree + heap, Binary Search Tree. 
 //============================================================================
 
-#if __cplusplus >= 201103L // -std=c++11 или выше
-
 #ifndef TREAP_HPP
 #define TREAP_HPP 1
 
@@ -16,145 +14,137 @@
 #include <ctime>
 
 #define FAST_ALLOCATION 1
-//#define CONSTRUCTOR_FROM_NODE 1
 
 #ifdef DEBUG 
 	#include <iostream>
-#else
-	#ifdef CONTEST
-		#include <iostream>
-	#endif
 #endif
 
 
-namespace bst {
+namespace bst 
+{
+	class Randomizer
+	{
+		std::mt19937 gen;  // -- ГПСЧ
 
-#ifdef FAST_ALLOCATION 
-	/**
-	  * For fast allocation 
-	  */
-	const size_t MAX_MEM = 1e8; // -- размер буфера
-	size_t mpos = 0;
-	char mem[MAX_MEM]; // -- буфер
-#endif		
-
-#ifdef STATS 
-	size_t counter_allocate = 0; // -- счетчик аллокаций
-#endif		
-
-	std::mt19937 gen;  // -- ГПСЧ
-
-    /**
-     * Узлы дерева
-     * @tparam T -- тип ключа
-     * @tparam Compare -- компаратор для ключей
-     */
-	template<typename T, class Compare = std::less<T> >
-	class node {
-
-	public:	
-		node * l; // -- левый потомок
-		node * r; // -- правый потомок
-
-	private:
-		T key_; // -- пользовательский ключ
-		int priority_; // -- приоритет
-		unsigned int count_; // -- размер поддерева текущей вершины
-		bool deleted_; // -- флаг для быстрого удаления (remove)
-
-	public:	
-		node() : l(nullptr), r(nullptr), count_(0), deleted_(false) { }
-
-		node(const T& key) : l(nullptr), r(nullptr), key_(key),
-							 priority_((int)gen()), count_(1), deleted_(false) {}
-
-#ifdef CONSTRUCTOR_FROM_NODE 
-		node(const node & another) 
+	public:
+		Randomizer() noexcept
 		{
-			this->key_ = another.key_;
-			this->priority_ = (int)gen();
-			this->l = another.l;
-			this->r = another.r;
-			this->count_ = another.count_;
-			this->deleted_ = another.deleted_;
-		}
-#endif		
-
-		node(const T& key, const int priority) : l(nullptr), r(nullptr), key_(key),
-												 priority_(priority), count_(0), deleted_(false) { }
-
-        /**
-         * Модификаторы поля count_:
-         */
-		void set_count(const unsigned int count) { count_ = count; }
-
-		void up_count() noexcept { ++count_;}
-
-		void down_count() noexcept
-		{ 
-			if(count_ > 0) 
-					--count_; 
-#ifdef DEBUG 
-			else 
-				std::cerr << "down_count for count < 1\n";
-#endif		
+			gen.seed(time(0));
 		}
 
-        /**
-         * Проверяет, удален ли узел. Если не удален, меняет состояние!
-         * @return true, если узел уже был помечен как удаленный
-         */
-		bool testDel()
+		Randomizer(time_t seed) noexcept
 		{
-			if (!isDeleted())
-			{
-				invertDel();
-				return false;
-			} else {
-				return true;
-			}
+			gen.seed(seed);
 		}
 
-        /**
-         * Меняет значение поля deleted_
-         */
-		void invertDel() { deleted_ = !deleted_; }
-
-		/**
-		 * Геттеры для соответствующих полей:
-		 * @return
-		 */
-		unsigned int get_count() const { return count_; }
-		int get_priority() const { return priority_; }
-		const T get_key() const { return key_; }
-		bool isDeleted() const { return deleted_; }
-
-        /**
-         * Управление памятью (опционально)
-         */
-#ifdef FAST_ALLOCATION 
-		void * operator new(size_t n) noexcept
+		size_t operator()() noexcept
 		{
-			assert((mpos += n) <= MAX_MEM && "Ошибка аллокатора");
-#ifdef STATS 
-			++counter_allocate;
-#endif		
-			return (void *)(mem + mpos - n);
+			return gen();
 		}
-	
-		void operator delete(void *) noexcept { }
-#endif
 
+		~Randomizer() {}
 	};
 
+//-----------------------------------------------------------------------------
+	Randomizer rand_;
+//-----------------------------------------------------------------------------
 
 	template<typename T> 
 	class treap
 	{
+		//---------------------------------------------------------------------
+		struct node 
+		{
+			node * l; // -- левый потомок
+			node * r; // -- правый потомок
+			T key_; // -- пользовательский ключ
+			size_t priority_; // -- приоритет
+			size_t count_; // -- размер поддерева текущей вершины
+			bool deleted_; // -- флаг для быстрого удаления (remove)
 
-		typedef node<T>* pnode;
+			node() : l(nullptr), 
+			         r(nullptr), 
+					 count_(0), 
+					 deleted_(false) 
+			{}
 
-	private:
+			node(const T& key) : l(nullptr), 
+			                     r(nullptr), 
+								 key_(key),
+			                     priority_(rand_()), 
+								 count_(1), 
+								 deleted_(false) 
+			{}
+
+			node(const node & another) : l(another->l), 
+			                             r(another->r),
+			                             priority_(rand_()), 
+										 count_(another->count_), 
+										 key_(another->key_),
+					                     deleted_(another->deleted_)
+			{}
+
+			node(const T& key, const size_t priority) : l(nullptr), 
+			                                         r(nullptr), 
+													 key_(key),
+												     priority_(priority), 
+													 count_(0), 
+													 deleted_(false) 
+			{}
+
+			~node() {}
+
+        	/**
+	         * Модификаторы поля count_:
+	         */
+			void set_count(const size_t count) { count_ = count; }
+	
+			void up_count() noexcept { ++count_;}
+
+			void down_count() noexcept
+			{ 
+				if(count_ > 0) 
+						--count_; 
+#ifdef DEBUG 
+				else 
+					std::cerr << "down_count for count < 1\n";
+#endif		
+			}
+
+   	     /**
+   	      * Проверяет, удален ли узел. Если не удален, меняет состояние!
+   	      * @return true, если узел уже был помечен как удаленный
+   	      */
+			bool testDel()
+			{
+				if (!isDeleted())
+				{
+					invertDel();
+					return false;
+				} 
+				return true;
+			}
+
+	        /**
+   		      * Меняет значение поля deleted_
+   		      */
+			void invertDel() { deleted_ = !deleted_; }
+
+			/**
+			 * Геттеры для соответствующих полей:
+			 * @return
+			 */
+			size_t get_count() const { return count_; }
+			size_t get_priority() const { return priority_; }
+			const T get_key() const { return key_; }
+			bool isDeleted() const { return deleted_; }
+
+		};
+		//---------------------------------------------------------------------
+
+
+		typedef node* pnode;
+
 		pnode root_; // -- корень
 		T key_; // -- ключ, который был положен в корень первым
 		size_t size_; // -- размер дерева (на самом деле не нужен
@@ -162,8 +152,15 @@ namespace bst {
 		bool success_; // -- успешность последней операции над деревом
 
 	public:
-		treap() : root_(nullptr), key_((T)0), size_(0), deleted_count_(0),
-				  								success_(0) {gen.seed(time(0));};
+
+		treap() : root_(nullptr), 
+		          key_(T(0)), 
+				  size_(0), 
+				  deleted_count_(0),
+				  success_(0) 
+		{
+			rand_ = Randomizer();
+		}
 
         /**
          * Поиск в дереве по ключу
@@ -217,7 +214,7 @@ namespace bst {
 			}
 
 			if(!find_(root_, key)) {
-				insert_(root_, new node<T>(key));
+				insert_(root_, new node(key));
 			}
 
 			success_ = false;
@@ -329,7 +326,7 @@ namespace bst {
 		/**
 	 	 * Даёт размер поддеревьев для данного корня: 
 	 	 */
-		unsigned int get_count_(const pnode root) {
+		size_t get_count_(const pnode root) {
 			return root ? root->get_count() : 0;
 		}
 
@@ -390,7 +387,6 @@ namespace bst {
 		 */
 		void insert_(pnode & root, pnode it) 
 		{
-
 			/* Если пустое! */
 			if (size_ == 0)
 			{
@@ -417,10 +413,8 @@ namespace bst {
 				return;
 			}
 
-		
 			if (!root)																																				
-				root = it,
-				up_size();
+				root = it, up_size();
 			else if (it->get_priority() > root->get_priority())
 				/* Останавливаемся на первом элементе, в котором значение
 			 	 * приоритета оказалось меньше: 
@@ -440,7 +434,7 @@ namespace bst {
          * @param root -- корень дерева
          * @param it -- узел для вставки
          */
-		void insert_in_empty_(pnode & root, pnode it)
+		void insert_in_empty_(pnode it)
 		{
 			root_ = it;
 			update_count_(root_);
@@ -515,9 +509,8 @@ namespace bst {
 			if (!root) return false;
 
 			if (root->get_key() == key) 
-			{
 				return root->testDel() ? false : true ; 
-			}  	
+
 			return root->get_key() < key ? soft_remove_(root->r, key) : soft_remove_(root->l, key); 
 		}
 
@@ -531,9 +524,14 @@ namespace bst {
 		{
 			if (!root) return false;
 
-			if (root->get_key() == key && !root->isDeleted()) return true;
-			if (root->get_key() > key) return find_(root->l, key);
-			if (root->get_key() < key) return find_(root->r, key);
+			if (root->get_key() == key && !root->isDeleted()) 
+				return true;
+
+			if (root->get_key() > key) 
+				return find_(root->l, key);
+
+			if (root->get_key() < key) 
+				return find_(root->r, key);
 
 			return false;
 		}
@@ -543,7 +541,8 @@ namespace bst {
 	 	 * Вывод дерева в inorder-обходе:
          * @param root -- текущий узел
          */
-        void print_(pnode root) {
+        void print_(pnode root) 
+		{
             if (!root) return;
 
             print_(root->l);
@@ -566,7 +565,8 @@ namespace bst {
 		 */
 		T upper_bound_(pnode & root, const T key) {
 
-			if (!root_ || !root) {
+			if (!root_ || !root) 
+			{
 			 	success_ = false; 
 				return key;
 			}
@@ -615,21 +615,23 @@ namespace bst {
 			while (current) 
 			{
 				if (current->get_key() < key)
-				{
-					result = current;
-					current = current->r;
-				} else {
+					result = current, current = current->r;
+				else 
 					current = current->l;
-				}
 			}
 
-			if (!result) {
+			if (!result) 
+			{
 			 	success_ = false; 
 				return key;
-			} else if (result->isDeleted()) {
+			} 
+			else if (result->isDeleted()) 
+			{
 			 	success_ = false; 
 				return previous_(root_, result->get_key());
-			} else {
+			} 
+			else 
+			{
 			 	success_ = true; 
 				return result->get_key();
 			}
@@ -650,9 +652,10 @@ namespace bst {
 				if (root->isDeleted())
 							root->invertDel();
 				return true;
-			} else if (root->get_key() > key) {
+			} 
+			else if (root->get_key() > key) 
 				return revive_(root->l, key);
-			} else if (root->get_key() < key)
+			else if (root->get_key() < key)
 				return revive_(root->r, key);
 
 			return false;	
@@ -687,9 +690,6 @@ namespace bst {
 		 */
 		std::pair<pnode, pnode> _split_(pnode root, const size_t count)
 		{
-#ifdef DEBUG
-            assert(count >= 0);
-#endif
 			if (!root)
 				return std::make_pair(nullptr, nullptr);
 
@@ -714,30 +714,32 @@ namespace bst {
          * @param idx -- индекс массива настоящего состояния
          * @return указатель на k-ю вершину дерева по неявному ключу
          */
-		pnode _index_in_rope (pnode & root, const size_t idx)
+		pnode _index_in_rope(pnode & root, size_t idx)
 		{
 			pnode current = root;
+
 			while (current)
 			{
 				size_t sL = sOf_(current->l);
-				if (sL == idx) {
+				if (sL == idx) 
+				{
 					success_ = true;
 					return current;
 				}
 
 				current = sL > idx ? current->l : current->r;
+
 				if (idx > sL)
 					idx -= sL + 1;
-#ifdef DEBUG 
-				assert(idx >= 0);
-#endif		
 			}
+
             success_ = false;
 			return NULL;
 		}
 
 #ifdef CONTEST
-        void result_(pnode noda) {
+        void result_(pnode noda) 
+		{
         	if (!noda) return;
 
         	result_(noda->l);
@@ -776,5 +778,4 @@ namespace bst {
 	};
 }
 
-#endif
 #endif
