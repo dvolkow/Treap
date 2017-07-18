@@ -12,7 +12,7 @@
 #include <random>
 #include <cassert>
 #include <ctime>
-#include <vector>
+#include <memory>
 
 #define FAST_ALLOCATION 1
 
@@ -79,7 +79,7 @@ namespace bst
     				 deleted_(false) 
     		{}
 
-    		node(const T& key) : l(nullptr), 
+    		explicit node(const T& key) : l(nullptr), 
     		                     r(nullptr), 
     							 key_(key),
     		                     priority_(rand_()), 
@@ -87,7 +87,7 @@ namespace bst
     							 deleted_(false) 
     		{}
 
-    		node(const node & another) : l(another.l), 
+    		explicit node(const node & another) : l(another.l), 
     		                             r(another.r),
     									 key_(another.key_),
     		                             priority_(rand_()), 
@@ -95,7 +95,7 @@ namespace bst
     				                     deleted_(another.deleted_)
     		{}
 
-    		node(const T& key, const size_t priority) : l(nullptr), 
+    		explicit node(const T& key, const size_t priority) : l(nullptr), 
     		                                         r(nullptr), 
     												 key_(key),
     											     priority_(priority), 
@@ -200,14 +200,6 @@ namespace bst
          */
     	bool was(T key) noexcept { return was_(root_, key); }
 
-#ifdef STATS
-        /**
-         * Контроль эффективности использования памяти
-         * @return количество узлов, помеченных как удаленные
-         */
-        size_t deleted_count() { return deleted_count_; }
-#endif
-
         /**
          * Точная верхняя грань по ключу
          * @param key -- значение ключа
@@ -279,13 +271,6 @@ namespace bst
     		root_ = new_root;
     	}
 
-#ifdef CONTEST
-    	void contest_output()
-    	{
-    		result_(root_);
-    	}
-#endif
-
     	/**
     	 * Hard-удаление (не игнорирует мягко удалённые, удаляет НЕЗАВИСИМО
     	 * от того, был ли данный элемент мягко удален. Соответственно,
@@ -294,7 +279,9 @@ namespace bst
     	 */
     	void erase(T key)
     	{
-    		if(find_(root_, key)) remove_(root_, key);
+    		if (find_(root_, key)) 
+				remove_(root_, key);
+
     		success_ = false;
     	}
 
@@ -321,7 +308,7 @@ namespace bst
     	 * @param k -- номер максимума в дереве
     	 * @return T key : k-й максимум в дереве
     	 */
-    	T k_max(unsigned int k) { return k_max_(root_, k); }
+    	T k_max(size_t k) { return k_max_(root_, k); }
 
         /**
          * Размер дерева
@@ -483,7 +470,7 @@ namespace bst
     	 * @param k -- текущее значение индекса
     	 * @return ключ k-го максимального узла
     	 */
-    	T k_max_(pnode & root, unsigned int k)
+    	T k_max_(pnode & root, size_t k)
     	{
     		pnode current = root;
     		while (current)
@@ -761,16 +748,6 @@ namespace bst
     		return NULL;
     	}
 
-#ifdef CONTEST
-        void result_(pnode noda) 
-    	{
-            if (!noda) return;
-
-            result_(noda->l);
-            std::cout << noda->get_key() << " ";
-            result_(noda->r);
-        }
-#endif
     	/**
     	 *-------------Вспомогательные операции-------------------
     	 *--------------------------------------------------------
