@@ -251,13 +251,13 @@ namespace bst
     		/**
     		 *Клеим крайние деревья:
     		 */
-            pnode tmp = NULL;
+            pnode tmp = nullptr;
     		merge(tmp, left_middle_cut.first, middle_right_cut.second);
 
     		/**
     		 * Клеим вырезанное и склеенное:
     		 */
-    		pnode new_root = NULL;
+    		pnode new_root = nullptr;
     		merge(new_root, middle_right_cut.first, tmp);
     		root_ = new_root;
     	}
@@ -369,7 +369,7 @@ namespace bst
     	void split (pnode root, const T key, pnode & l, pnode & r) 
     	{
     		if (!root)
-    			l = r = NULL;
+    			l = r = nullptr;
     		else if (key < root->key_) {
     			split(root->l, key, l, root->l); 
     			r = root;
@@ -476,7 +476,6 @@ namespace bst
 
     			if (k > sR)
     				k -= sR + 1;
-    			assert(k>=0);
     		}
 
     		success_ = false;
@@ -736,7 +735,7 @@ namespace bst
     		}
 
             success_ = false;
-    		return NULL;
+    		return nullptr;
     	}
 
     	/**
