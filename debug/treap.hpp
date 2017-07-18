@@ -7,7 +7,6 @@
 #ifndef TREAP_HPP
 #define TREAP_HPP 1
 
-#include <algorithm>
 #include <random>
 #include <cassert>
 #include <ctime>
@@ -22,20 +21,21 @@
 
 namespace bst 
 {
+
 #ifdef FAST_ALLOCATION 
-	// For fast allocation 
-	const size_t MAX_ALLOC_MEM_SIZE = 1e9; 
-	size_t mpos = 0;
-	char mem_buffer[MAX_ALLOC_MEM_SIZE];
+    // For fast allocation 
+    const size_t MAX_ALLOC_MEM_SIZE = 1e9; 
+    size_t mpos = 0;
+    char mem_buffer[MAX_ALLOC_MEM_SIZE];
 #endif		
 
 
     class Randomizer
     {
-    	std::mt19937 gen;  // -- ГПСЧ
+       	std::mt19937 gen;  // -- ГПСЧ
 
     public:
-    	Randomizer() noexcept
+        Randomizer() noexcept
     	{
     		gen.seed(time(0));
     	}
@@ -72,7 +72,7 @@ namespace bst
     		size_t count_; // -- размер поддерева текущей вершины
     		bool deleted_; // -- флаг для быстрого удаления (remove)
 
-    		node() : l(nullptr), 
+    		node() noexcept: l(nullptr), 
     		         r(nullptr), 
                      key_(0),
     		         priority_(rand_()), 
@@ -80,7 +80,7 @@ namespace bst
                      deleted_(false) 
     		{}
 
-    		explicit node(const T& key) : l(nullptr), 
+    		explicit node(const T& key) noexcept: l(nullptr), 
     		                              r(nullptr), 
                                           key_(key),
                                           priority_(rand_()), 
@@ -88,7 +88,7 @@ namespace bst
                                           deleted_(false) 
     		{}
 
-    		explicit node(const node & another) : l(another.l), 
+    		explicit node(const node & another) noexcept: l(another.l), 
     		                                      r(another.r),
                                                   key_(another.key_),
                                                   priority_(rand_()), 
@@ -96,7 +96,7 @@ namespace bst
     				                              deleted_(another.deleted_)
     		{}
 
-    		explicit node(const T& key, const size_t priority) : l(nullptr), 
+    		explicit node(const T& key, const size_t priority) noexcept : l(nullptr), 
     		                                                     r(nullptr), 
                                                                  key_(key),
                                                                  priority_(priority), 
@@ -120,7 +120,7 @@ namespace bst
              * Проверяет, удален ли узел. Если не удален, меняет состояние!
              * @return true, если узел уже был помечен как удаленный
              */
-    		bool testDel()
+    		bool testDel() noexcept
     		{
     			if (!deleted_)
     			{
@@ -133,29 +133,25 @@ namespace bst
             /**
        	      * Меняет значение поля deleted_
        	      */
-    		void invertDel() { deleted_ = !deleted_; }
+    		void invertDel() noexcept { deleted_ = !deleted_; }
 
     	};
     	//---------------------------------------------------------------------
-
-
-//    	typedef node* pnode;
-
-//    	std::vector<node> tree_;
+		// idea: using this
+        //std::vector<node> tree_;
 
     	pnode root_; // -- корень
     	T key_; // -- ключ, который был положен в корень первым
-//    	size_t size_; // -- размер дерева (на самом деле не нужен
     	size_t deleted_count_; // -- количество удаленных вершин
     	bool success_; // -- успешность последней операции над деревом
 
     public:
 
-    	treap() : root_(nullptr), 
-    	          key_(T(0)), 
- //   			  size_(0), 
+    	treap() noexcept
+			: root_(nullptr), 
+    	          key_(T()), 
     			  deleted_count_(0),
-    			  success_(false)
+    			  success_(false) 
     	{
     		rand_ = Randomizer();
     	}
@@ -270,7 +266,7 @@ namespace bst
     	{
     		if (soft_remove_(root_, key)) 
     		{
-    			up_deleted_count_();
+				++deleted_count_; 
     			return true;
     		}
 
@@ -717,8 +713,6 @@ namespace bst
             success_ = false;
     		return nullptr;
     	}
-
-    	void up_deleted_count_() { ++deleted_count_; }
 
     	void down_deleted_count_() 
     	{ 

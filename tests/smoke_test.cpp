@@ -1,6 +1,32 @@
 #include "../debug/treap.hpp"
 #include <iostream>
 #include <set>
+#include <my_dev/anglib.hpp>
+
+struct lol 
+{
+	int a;
+
+	lol() : a(0) {}
+
+	lol(int t) : a(t) {}
+
+};
+
+bool operator<(const lol & t, const lol & b)
+{
+	return t.a < b.a;
+}
+
+bool operator==(const lol & t, const lol & b)
+{
+	return t.a == b.a;
+}
+
+bool operator>(const lol & t, const lol & b)
+{
+	return t.a > b.a;
+}
 
 int main()
 {
@@ -43,4 +69,13 @@ int main()
 		my_tree.insert(i);
 
 	std::cout << my_tree.size() << ", size: " << sizeof(my_tree) << "\n";
+	std::cout << my_tree.size() << ", size: " << sizeof(my_tree) << "\n";
+
+	bst::treap<anglib::Deg> deg_tree;
+	bst::treap<lol> lol_tree;
+	for (auto i = 0; i < 10000; ++i)
+		deg_tree.insert(anglib::Deg(i)), lol_tree.insert(lol(i));
+
+
 }
+
