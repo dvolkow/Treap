@@ -23,6 +23,14 @@
 
 namespace bst 
 {
+#ifdef FAST_ALLOCATION 
+	// For fast allocation 
+	const size_t MAX_ALLOC_MEM_SIZE = 1e9; 
+	size_t mpos = 0;
+	char mem_buffer[MAX_ALLOC_MEM_SIZE];
+#endif		
+
+
     class Randomizer
     {
     	std::mt19937 gen;  // -- ГПСЧ
@@ -47,7 +55,7 @@ namespace bst
     };
 
 //-----------------------------------------------------------------------------
-    Randomizer rand_;
+   Randomizer rand_;
 //-----------------------------------------------------------------------------
 
     template<typename T> 
@@ -95,7 +103,17 @@ namespace bst
     												 deleted_(false) 
     		{}
 
-    		~node() {}
+ #ifdef FAST_ALLOCATION 
+		void * operator new(size_t n) noexcept
+		{
+			assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
+			return reinterpret_cast<void*>(mem_buffer + mpos - n);
+		}
+	
+		void operator delete(void *) noexcept { }
+#endif
+
+   		~node() {}
 
             /**
              * Модификаторы поля count_:
