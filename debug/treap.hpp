@@ -361,7 +361,7 @@ namespace bst
                 r = root;
             }
             else 
-			{
+            {
                 split(root->r, key, root->r, r);  
                 l = root;
             }
