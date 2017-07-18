@@ -93,7 +93,7 @@ namespace bst
                       count_(0), deleted_(false) 
             {}
 
- #ifdef FAST_ALLOCATION 
+#ifdef FAST_ALLOCATION 
             void * operator new(size_t n) noexcept
             {
                 assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
@@ -101,7 +101,7 @@ namespace bst
             }
     
             void operator delete(void *) noexcept 
-			{}
+            {}
 #endif
 
             ~node() {}
@@ -121,10 +121,9 @@ namespace bst
             }
 
             void invertDel() noexcept 
-			{ 
-				deleted_ = !deleted_; 
-			}
-
+            { 
+                deleted_ = !deleted_; 
+            }
         };
 
         //---------------------------------------------------------------------
@@ -151,9 +150,9 @@ namespace bst
          * false в противном случае
          */
         bool find(const T key) const noexcept 
-		{    
-		    return find_(root_, key); 
-		}
+        {    
+            return find_(root_, key); 
+        }
 
         /**
          * Поиск в дереве по ключу
@@ -161,9 +160,9 @@ namespace bst
          * @return true, если элемент есть в дереве, false в противном случае
          */
         bool was(const T key) const noexcept 
-		{ 
+        { 
             return was_(root_, key); 
-		}
+        }
 
         /**
          * Точная верхняя грань по ключу
@@ -171,9 +170,9 @@ namespace bst
          * @return минимальный ключ t из дерева такой, что t > key
          */
         T upper_bound(const T key) const noexcept 
-		{    
-			return upper_bound_(root_, key); 
-		}
+        {    
+            return upper_bound_(root_, key); 
+        }
 
         /**
          * Максимальный элемент, больший ключа
@@ -181,9 +180,9 @@ namespace bst
          * @return ключ из дерева
          */
         T previous(const T key) const noexcept 
-		{ 
-			return previous_(root_, key); 
-		}
+        { 
+            return previous_(root_, key); 
+        }
 
         /**
          * Вставка по ключу в дерево
@@ -279,9 +278,9 @@ namespace bst
          * @return T key : k-й максимум в дереве
          */
         T k_max(const size_t k) const 
-		{ 
-			return k_max_(root_, k); 
-		}
+        { 
+            return k_max_(root_, k); 
+        }
 
         /**
          * Размер дерева
@@ -297,9 +296,9 @@ namespace bst
          * @return true, если последняя операция завершилась успешно
          */
         bool get_success() const 
-		{ 
-			return success_; 
-		}
+        { 
+            return success_; 
+        }
 
 #ifdef DEBUG
         /**
@@ -314,7 +313,7 @@ namespace bst
          * Даёт размер поддеревьев для данного корня: 
          */
         size_t get_count_(const pnode root) const 
-		{
+        {
             return root ? root->count_ : 0;
         }
 
@@ -357,7 +356,7 @@ namespace bst
             if (!root)
                 l = r = nullptr;
             else if (key < root->key_) 
-			{
+            {
                 split(root->l, key, l, root->l); 
                 r = root;
             }
@@ -452,7 +451,8 @@ namespace bst
             while (current)
             {
                 size_t sR = sOf_(current->r);
-                if (sR == k) {
+                if (sR == k) 
+                {
                      success_ = true; 
                      return current->key_; 
                 }
@@ -551,7 +551,7 @@ namespace bst
          * @return
          */
         T upper_bound_(const pnode & root, const T key) const
-		{
+        {
             if (!root_ || !root) 
             {
                  success_ = false; 
@@ -570,17 +570,17 @@ namespace bst
             }
 
             if (!result) 
-			{
+            {
                 success_ = false; 
                 return key;
             } 
-			else if (result->deleted_) 
-			{
+            else if (result->deleted_) 
+            {
                 success_ = false; 
                 return upper_bound_(root_, result->key_);
             } 
-			else 
-			{
+            else 
+            {
                 success_ = true; 
                 return result->key_;
             } 
@@ -593,10 +593,10 @@ namespace bst
          * @return
          */
         T previous_(const pnode & root, const T key) const 
-		{
+        {
             success_ = false; 
             if (!root_ || !root) 
-			{
+            {
                 return key;
             }
 
@@ -635,12 +635,12 @@ namespace bst
         bool revive_(pnode & root, const T key)
         {
             if (!root) 
-				return false;
+                return false;
 
             if (root->key_ == key)
             {
                 if (root->deleted_)
-                            root->invertDel();
+                    root->invertDel();
                 return true;
             } 
             else if (root->key_ > key) 
@@ -661,16 +661,16 @@ namespace bst
         bool was_(const pnode & root, const T key) const
         {
             if (!root) 
-				return false;
+                return false;
 
             if (root->key_ == key) 
-				return true;
+                return true;
 
             if (root->key_ > key) 
-				return was_(root->l, key);
+                return was_(root->l, key);
 
             if (root->key_ < key) 
-				return was_(root->r, key);
+                return was_(root->r, key);
 
             return false;
         }
@@ -698,7 +698,7 @@ namespace bst
                 update_count_(root);
                 return std::make_pair(res.first, root);
             } 
-			else
+            else
             {
                 std::pair<pnode, pnode> res = _split_(root->r, count - left_size - 1);
                 root->r = res.first;
