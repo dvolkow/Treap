@@ -1,7 +1,6 @@
 //============================================================================
 // Name            : treap.hpp
 // Author          : Wolkow Daniel
-// Version         : 0.4
 // Description     : This hpp implements treap = tree + heap, Binary Search Tree. 
 //============================================================================
 
@@ -12,9 +11,9 @@
 #include <random>
 #include <cassert>
 #include <ctime>
-//#include <memory>
+#include <memory>
 
-#define FAST_ALLOCATION 1
+//#define FAST_ALLOCATION 1
 
 #ifdef DEBUG 
     #include <iostream>
@@ -61,11 +60,13 @@ namespace bst
     template<typename T> 
     class treap
     {
+		struct node;
+		using pnode = std::shared_ptr<node>;
     	//---------------------------------------------------------------------
     	struct node 
     	{
-    		node * l; // -- левый потомок
-    		node * r; // -- правый потомок
+    		pnode l; // -- левый потомок
+    		pnode r; // -- правый потомок
     		T key_; // -- пользовательский ключ
     		size_t priority_; // -- приоритет
     		size_t count_; // -- размер поддерева текущей вершины
@@ -73,34 +74,34 @@ namespace bst
 
     		node() : l(nullptr), 
     		         r(nullptr), 
-    				 key_(0),
+                     key_(0),
     		         priority_(rand_()), 
-    				 count_(0), 
-    				 deleted_(false) 
+                     count_(0), 
+                     deleted_(false) 
     		{}
 
     		explicit node(const T& key) : l(nullptr), 
-    		                     r(nullptr), 
-    							 key_(key),
-    		                     priority_(rand_()), 
-    							 count_(1), 
-    							 deleted_(false) 
+    		                              r(nullptr), 
+                                          key_(key),
+                                          priority_(rand_()), 
+                                          count_(1), 
+                                          deleted_(false) 
     		{}
 
     		explicit node(const node & another) : l(another.l), 
-    		                             r(another.r),
-    									 key_(another.key_),
-    		                             priority_(rand_()), 
-    									 count_(another.count_), 
-    				                     deleted_(another.deleted_)
+    		                                      r(another.r),
+                                                  key_(another.key_),
+                                                  priority_(rand_()), 
+    									          count_(another.count_), 
+    				                              deleted_(another.deleted_)
     		{}
 
     		explicit node(const T& key, const size_t priority) : l(nullptr), 
-    		                                         r(nullptr), 
-    												 key_(key),
-    											     priority_(priority), 
-    												 count_(0), 
-    												 deleted_(false) 
+    		                                                     r(nullptr), 
+                                                                 key_(key),
+                                                                 priority_(priority), 
+                                                                 count_(0), 
+                                                                 deleted_(false) 
     		{}
 
  #ifdef FAST_ALLOCATION 
@@ -114,23 +115,6 @@ namespace bst
 #endif
 
    			~node() {}
-
-            /**
-             * Модификаторы поля count_:
-             */
-    		void set_count(const size_t count) { count_ = count; }
-    
-    		void up_count() noexcept { ++count_;}
-
-    		void down_count() noexcept
-    		{ 
-    			if(count_ > 0) 
-    					--count_; 
-#ifdef DEBUG 
-    			else 
-    				std::cerr << "down_count for count < 1\n";
-#endif    	
-    		}
 
             /**
              * Проверяет, удален ли узел. Если не удален, меняет состояние!
@@ -155,7 +139,7 @@ namespace bst
     	//---------------------------------------------------------------------
 
 
-    	typedef node* pnode;
+//    	typedef node* pnode;
 
 //    	std::vector<node> tree_;
 
@@ -221,7 +205,7 @@ namespace bst
 
     		if(!find_(root_, key))
 			{
-    			insert_(root_, new node(key));
+    			insert_(root_, std::make_shared<node>(node(key)));
     		}
 
     		success_ = false;
@@ -338,7 +322,7 @@ namespace bst
     	inline void update_count_(pnode & root) 
     	{
     		if (root) 
-    			root->set_count(1 + get_count_(root->l) + get_count_(root->r));
+    			root->count_ = 1 + get_count_(root->l) + get_count_(root->r);
     	}
 
     	/**
