@@ -145,7 +145,7 @@ namespace bst
 
     	pnode root_; // -- корень
     	T key_; // -- ключ, который был положен в корень первым
-    	size_t size_; // -- размер дерева (на самом деле не нужен
+//    	size_t size_; // -- размер дерева (на самом деле не нужен
     	size_t deleted_count_; // -- количество удаленных вершин
     	bool success_; // -- успешность последней операции над деревом
 
@@ -153,7 +153,7 @@ namespace bst
 
     	treap() : root_(nullptr), 
     	          key_(T(0)), 
-    			  size_(0), 
+ //   			  size_(0), 
     			  deleted_count_(0),
     			  success_(false)
     	{
@@ -198,7 +198,6 @@ namespace bst
     		if (revive_(root_, key))
     		{
     			down_deleted_count_();
-    			up_size();
     			success_ = false;
     			return;
     		}
@@ -374,17 +373,16 @@ namespace bst
     	void insert_(pnode & root, pnode it) 
     	{
     		/* Если пустое! */
-    		if (size_ == 0)
+    		if (size() == 0)
     		{
     			root_ = it;
     			update_count_(root_);
-    			up_size();
     			this->key_ = it->key_;
     			return;
     		}
 
     		/* Если только один элемент! */
-    		if (size_ == 1)
+    		if (size() == 1)
     		{
     			if (root_->key_ > it->key_)
     				root_->l = it;
@@ -395,17 +393,16 @@ namespace bst
 
     			update_count_(root);
     			update_count_(it);
-    			up_size();
     			return;
     		}
 
-    		if (!root)																																				
-    			root = it, up_size();
+    		if (!root)
+    			root = it;
     		else if (it->priority_ > root->priority_)
     			/* Останавливаемся на первом элементе, в котором значение
     		 	 * приоритета оказалось меньше: 
     		 	 */
-    			split(root, it->key_, it->l, it->r),  root = it, up_size();
+    			split(root, it->key_, it->l, it->r),  root = it;
     		else if (it->key_ < root->key_)
     			/* Спускаемся по дереву, как в обычном бинпоиске */	
     			insert_(root->l, it);
@@ -424,7 +421,6 @@ namespace bst
     	{
     		root_ = it;
     		update_count_(root_);
-    		up_size();
     		this->key_ = it->key_;
     		return;
     	}
@@ -477,7 +473,7 @@ namespace bst
     	void remove_(pnode & root, const T key)
     	{
     		if (root->key_ == key)
-    			merge(root, root->l, root->r), down_size();
+    			merge(root, root->l, root->r);
     		else
     			remove_(key < root->key_ ? root->l : root->r, key);
     		update_count_(root);
@@ -720,23 +716,6 @@ namespace bst
 
             success_ = false;
     		return nullptr;
-    	}
-
-    	/**
-    	 *-------------Вспомогательные операции-------------------
-    	 *--------------------------------------------------------
-    	 */
-
-    	void up_size() { ++size_; }
-
-    	void down_size() 
-    	{ 
-    		if(size_ > 0) 
-    			--size_; 
-#ifdef DEBUG 
-    		else 
-    			std::cerr << "down_size for size_ < 1"; 
-#endif    	
     	}
 
     	void up_deleted_count_() { ++deleted_count_; }
