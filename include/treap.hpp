@@ -8,28 +8,11 @@
 #define TREAP_HPP 1
 
 #include <random>
-#include <cassert>
 #include <ctime>
 #include <memory>
 
-//#define FAST_ALLOCATION 1
-
-#ifdef DEBUG 
-    #include <iostream>
-#endif
-
-
 namespace bst 
 {
-
-#ifdef FAST_ALLOCATION 
-    // For fast allocation 
-    const size_t MAX_ALLOC_MEM_SIZE = 1e9; 
-    size_t mpos = 0;
-    char mem_buffer[MAX_ALLOC_MEM_SIZE];
-#endif        
-
-
     class Randomizer
     {
         std::mt19937 gen;  // -- ГПСЧ
@@ -92,17 +75,6 @@ namespace bst
                     : l(nullptr), r(nullptr), key_(key), priority_(priority), 
                       count_(0), deleted_(false) 
             {}
-
-#ifdef FAST_ALLOCATION 
-            void * operator new(size_t n) noexcept
-            {
-                assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
-                return reinterpret_cast<void*>(mem_buffer + mpos - n);
-            }
-    
-            void operator delete(void *) noexcept 
-            {}
-#endif
 
             ~node() {}
 
@@ -192,7 +164,7 @@ namespace bst
         {
             if (revive_(root_, key))
             {
-                down_deleted_count_();
+                --deleted_count_;                 
                 success_ = false;
                 return;
             }
@@ -212,9 +184,6 @@ namespace bst
          */
         void replace_in_head(const size_t left_bound, const size_t right_bound)
         {
-#ifdef DEBUG 
-            assert(left_bound <= root_->count_ && right_bound <= root_->count_);
-#endif        
             /**
              * Режем раз:
              */
@@ -300,12 +269,6 @@ namespace bst
             return success_; 
         }
 
-#ifdef DEBUG
-        /**
-         * Печать дерева
-         */
-        void print() const { print_(root_); }
-#endif
 
     private:
 
@@ -523,27 +486,6 @@ namespace bst
             return false;
         }
 
-#ifdef DEBUG
-        /**
-         * Вывод дерева в inorder-обходе:
-         * @param root -- текущий узел
-         */
-        void print_(const pnode root) const
-        {
-            if (!root) return;
-
-            print_(root->l);
-            if (!root->deleted_)
-                std::cout << "(" << root->key_ <<  ", " << root->count_ << /*  ", prior= " <<
-                            root->prior<<*/ ") ";
-            else
-                std::cout << "(D-" << root->key_ << /* ", " << root->count  <<  ", prior= " <<
-                            root->prior<<*/ ") ";
-
-            print_(root->r);
-        }
-#endif
-
         /**
          * Следующий в дереве по ключу
          * @param root
@@ -735,16 +677,8 @@ namespace bst
             return nullptr;
         }
 
-        void down_deleted_count_() 
-        { 
-            if(deleted_count_ > 0) 
-                --deleted_count_; 
-#ifdef DEBUG 
-            else 
-                std::cerr << "down_size for deleted_count_ < 1"; 
-#endif        
-        }
-    };
-}
+    };      // treap 
 
-#endif
+}           // namespace bst
+
+#endif      // -- header
