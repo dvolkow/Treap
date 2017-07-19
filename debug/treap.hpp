@@ -139,8 +139,19 @@ namespace bst
 
         treap() noexcept
             : root_(nullptr), key_(T()), deleted_count_(0), success_(false) 
-        {
-            rand_ = Randomizer();
+        { rand_ = Randomizer(); }
+
+        treap(const treap & other) 
+            : root_(other.root_), key_(other.key_), deleted_count_(other.deleted_count_),
+              success_(other.success_) 
+        { rand_ = Randomizer(); }
+
+        treap(std::initializer_list<T> init) 
+            : root_(nullptr), key_(), deleted_count_(0), success_(false) 
+        { 
+            rand_ = Randomizer(); 
+            for (auto i : init)
+                this->insert(i);
         }
 
         /**
