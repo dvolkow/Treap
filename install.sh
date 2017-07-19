@@ -9,11 +9,22 @@ fi
 
 if [ "$f" = "debug" ] 
 then 
-	echo "Устанавливаем дебажную версию <my_dev/treap.hpp>"
-	sudo cp ./debug/treap.hpp /usr/include/my_dev/
+    if [ -f debug/treap.hpp ]
+    then
+	    echo "Устанавливаем дебажную версию <my_dev/treap.hpp>"
+	    sudo cp ./debug/treap.hpp /usr/include/my_dev/
+        echo "Успех!"
+    else 
+        echo "Запустите ./install.sh из корневой директории репозитория!"
+    fi
 else
-	echo "Устанавливаем релизную версию <my_dev/treap.hpp>"
-	sudo cp ./include/treap.hpp /usr/include/my_dev/
+    if [ -f include/treap.hpp ]
+    then
+	    echo "Устанавливаем релизную версию <my_dev/treap.hpp>"
+	    sudo cp ./include/treap.hpp /usr/include/my_dev/
+        echo "Успех!";
+    else 
+        echo "Запустите ./install.sh из корневой директории репозитория!"
+    fi
 fi
-echo "Успех!"
 
