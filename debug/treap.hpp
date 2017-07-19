@@ -59,6 +59,8 @@ namespace bst
         mutable bool success_; // -- успешность последней операции над деревом
 
     public:
+//        typedef treapIterator<T> iterator;
+//        typedef treapIterator<const T> const_iterator;
 
         treap() noexcept
             : root_(nullptr), key_(T()), success_(false) 
@@ -76,6 +78,10 @@ namespace bst
                 this->insert(i);
         }
 
+ //       iterator begin();
+//        iterator end();
+ //       const_iterator begin();
+//        const_iterator end();
         /**
          * Поиск в дереве по ключу
          * @param key -- значение ключа
@@ -709,6 +715,23 @@ namespace bst
             { 
                 deleted_ = !deleted_; 
             }
+        }; // -- node 
+
+        template <typename ValueType>
+        class treapIterator : public std::iterator<std::bidirectional_iterator_tag, ValueType>
+        {
+            friend class treap;
+        private: 
+            treapIterator(ValueType * p);
+        public:
+            treapIterator(const treapIterator & it);
+
+            bool operator!=(treapIterator const & other) const;
+            bool operator==(treapIterator const & other) const; // need for boost foreach
+            typename treapIterator::reference operator*() const;
+            treapIterator & operator++();
+        private:
+            ValueType * p;
         };
     };
 }
