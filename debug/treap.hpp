@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include "../../containers/debug/tree.hpp"
+#include <my_dev/tree.hpp>
 
 namespace bst 
 {
