@@ -9,10 +9,11 @@ fi
 
 if [ "$f" = "debug" ] 
 then 
-	echo "Установлена дебажная версия <my_dev/treap.hpp>"
+	echo "Устанавливаем дебажную версию <my_dev/treap.hpp>"
 	sudo cp ./debug/treap.hpp /usr/include/my_dev/
 else
-	echo "Установлена релизная версия <my_dev/treap.hpp>"
+	echo "Устанавливаем релизную версию <my_dev/treap.hpp>"
 	sudo cp ./include/treap.hpp /usr/include/my_dev/
 fi
+echo "Успех!"
 
