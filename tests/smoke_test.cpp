@@ -85,5 +85,7 @@ int main()
 	std::cout << stb.size() << ", size: " << sizeof(my_tree) << "\n";
 	std::cout << stb.find("adk")  << "\n";
 	std::cout << stb.find("adf")  << "\n";
+
+    typename bst::treap<int>::size_type t = 0;
 }
 
