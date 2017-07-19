@@ -1,3 +1,4 @@
+//#include <my_dev/treap.hpp>
 #include "../debug/treap.hpp"
 #include <iostream>
 #include <set>
@@ -73,9 +74,18 @@ int main()
 
 	bst::treap<anglib::Deg> deg_tree;
 	bst::treap<lol> lol_tree;
+
 	for (auto i = 0; i < 10000; ++i)
 		deg_tree.insert(anglib::Deg(i)), lol_tree.insert(lol(i));
 
+    bst::treap<std::string> stb;
+    stb.insert("adf");
+    stb.insert("add");
+    stb.insert("ad");
+	std::cout << stb.size() << ", size: " << sizeof(my_tree) << "\n";
+	std::cout << stb.find("adk")  << "\n";
+	std::cout << stb.find("adf")  << "\n";
 
+    typename bst::treap<int>::size_type t = 0;
 }
 

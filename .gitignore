@@ -1,3 +1,6 @@
-tests/old
-tests/debug
-tests/run_test
+run_test
+.gitignore
+*.swp
+tests/debug/
+tests/old/
+
