@@ -12,24 +12,11 @@
 #include <ctime>
 #include <memory>
 
-//#define FAST_ALLOCATION 1
-
-#ifdef DEBUG 
-    #include <iostream>
-#endif
+#include <iostream>
 
 
 namespace bst 
 {
-
-#ifdef FAST_ALLOCATION 
-    // For fast allocation 
-    const size_t MAX_ALLOC_MEM_SIZE = 1e9; 
-    size_t mpos = 0;
-    char mem_buffer[MAX_ALLOC_MEM_SIZE];
-#endif        
-
-
     class Randomizer
     {
         std::mt19937 gen;  // -- ГПСЧ
@@ -57,74 +44,11 @@ namespace bst
    Randomizer rand_;
 //-----------------------------------------------------------------------------
 
-    template<typename T> 
+    template <typename T> 
     class treap
     {
         struct node;
         using pnode = std::shared_ptr<node>;
-
-        //---------------------------------------------------------------------
-        struct node 
-        {
-            pnode l; // -- левый потомок
-            pnode r; // -- правый потомок
-            T key_; // -- пользовательский ключ
-            size_t priority_; // -- приоритет
-            size_t count_; // -- размер поддерева текущей вершины
-            bool deleted_; // -- флаг для быстрого удаления (remove)
-
-            node() noexcept
-                    : l(nullptr), r(nullptr), key_(0), priority_(rand_()), 
-                      count_(0), deleted_(false) 
-            {}
-
-            explicit node(const T& key) noexcept
-                    : l(nullptr), r(nullptr), key_(key), priority_(rand_()), 
-                      count_(1), deleted_(false) 
-            {}
-
-            explicit node(const node & another) noexcept
-                    : l(another.l), r(another.r), key_(another.key_),
-                      priority_(rand_()), count_(another.count_), deleted_(another.deleted_)
-            {}
-
-            explicit node(const T& key, const size_t priority) noexcept 
-                    : l(nullptr), r(nullptr), key_(key), priority_(priority), 
-                      count_(0), deleted_(false) 
-            {}
-
-#ifdef FAST_ALLOCATION 
-            void * operator new(size_t n) noexcept
-            {
-                assert((mpos += n) <= MAX_ALLOC_MEM_SIZE && "Ошибка аллокатора!\n");
-                return reinterpret_cast<void*>(mem_buffer + mpos - n);
-            }
-    
-            void operator delete(void *) noexcept 
-            {}
-#endif
-
-            ~node() {}
-
-            /**
-             * Проверяет, удален ли узел. Если не удален, меняет состояние!
-             * @return true, если узел уже был помечен как удаленный
-             */
-            bool testDel() noexcept
-            {
-                if (!deleted_)
-                {
-                    invertDel();
-                    return false;
-                } 
-                return true;
-            }
-
-            void invertDel() noexcept 
-            { 
-                deleted_ = !deleted_; 
-            }
-        };
 
         //---------------------------------------------------------------------
         // idea: using this
@@ -132,22 +56,20 @@ namespace bst
 
         pnode root_; // -- корень
         T key_; // -- ключ, который был положен в корень первым
-        size_t deleted_count_; // -- количество удаленных вершин
         mutable bool success_; // -- успешность последней операции над деревом
 
     public:
 
         treap() noexcept
-            : root_(nullptr), key_(T()), deleted_count_(0), success_(false) 
+            : root_(nullptr), key_(T()), success_(false) 
         { rand_ = Randomizer(); }
 
         treap(const treap & other) 
-            : root_(other.root_), key_(other.key_), deleted_count_(other.deleted_count_),
-              success_(other.success_) 
+            : root_(other.root_), key_(other.key_), success_(other.success_) 
         { rand_ = Randomizer(); }
 
         treap(std::initializer_list<T> init) 
-            : root_(nullptr), key_(), deleted_count_(0), success_(false) 
+            : root_(nullptr), key_(), success_(false) 
         { 
             rand_ = Randomizer(); 
             for (auto i : init)
@@ -203,7 +125,6 @@ namespace bst
         {
             if (revive_(root_, key))
             {
-                down_deleted_count_();
                 success_ = false;
                 return;
             }
@@ -223,9 +144,6 @@ namespace bst
          */
         void replace_in_head(const size_t left_bound, const size_t right_bound)
         {
-#ifdef DEBUG 
-            assert(left_bound <= root_->count_ && right_bound <= root_->count_);
-#endif        
             /**
              * Режем раз:
              */
@@ -276,7 +194,6 @@ namespace bst
         {
             if (soft_remove_(root_, key)) 
             {
-                ++deleted_count_; 
                 return true;
             }
 
@@ -311,12 +228,10 @@ namespace bst
             return success_; 
         }
 
-#ifdef DEBUG
         /**
          * Печать дерева
          */
         void print() const { print_(root_); }
-#endif
 
     private:
 
@@ -534,7 +449,6 @@ namespace bst
             return false;
         }
 
-#ifdef DEBUG
         /**
          * Вывод дерева в inorder-обходе:
          * @param root -- текущий узел
@@ -553,7 +467,6 @@ namespace bst
 
             print_(root->r);
         }
-#endif
 
         /**
          * Следующий в дереве по ключу
@@ -746,15 +659,57 @@ namespace bst
             return nullptr;
         }
 
-        void down_deleted_count_() 
-        { 
-            if(deleted_count_ > 0) 
-                --deleted_count_; 
-#ifdef DEBUG 
-            else 
-                std::cerr << "down_size for deleted_count_ < 1"; 
-#endif        
-        }
+        //---------------------------------------------------------------------
+        struct node 
+        {
+            pnode l; // -- левый потомок
+            pnode r; // -- правый потомок
+            T key_; // -- пользовательский ключ
+            size_t priority_; // -- приоритет
+            size_t count_; // -- размер поддерева текущей вершины
+            bool deleted_; // -- флаг для быстрого удаления (remove)
+
+            node() noexcept
+                    : l(nullptr), r(nullptr), key_(0), priority_(rand_()), 
+                      count_(0), deleted_(false) 
+            {}
+
+            node(const T& key) noexcept
+                    : l(nullptr), r(nullptr), key_(key), priority_(rand_()), 
+                      count_(1), deleted_(false) 
+            {}
+
+            node(const node & another) noexcept
+                    : l(another.l), r(another.r), key_(another.key_),
+                      priority_(rand_()), count_(another.count_), deleted_(another.deleted_)
+            {}
+
+            node(const T& key, const size_t priority) noexcept 
+                    : l(nullptr), r(nullptr), key_(key), priority_(priority), 
+                      count_(0), deleted_(false) 
+            {}
+
+            ~node() {}
+
+            /**
+             * Проверяет, удален ли узел. Если не удален, меняет состояние!
+             * @return true, если узел уже был помечен как удаленный
+             */
+            bool testDel() noexcept
+            {
+                if (!deleted_)
+                {
+                    invertDel();
+                    return false;
+                } 
+                return true;
+            }
+
+            void invertDel() noexcept 
+            { 
+                deleted_ = !deleted_; 
+            }
+        };
     };
 }
 
