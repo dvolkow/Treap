@@ -8,24 +8,25 @@ Treap = tree + heap!
 ## Th!
 При случайном наборе ключей получается в среднем достаточно хорошо балансированное дерево, то есть с логарифмическим временем операций поиска, удаления, вставки элементов. 
 
-# Interface:
+## Installation / Установка
+
+Run ```install.sh``` as sudo/root (need copy header to /usr/include and create dir).
+
+Запустите скрипт ```install.sh``` из-под рута или суперпользователя (для возможности создания директории в /usr/include/ и копирования туда).
+
+# Interface
 
  Defined in header <treap.hpp>
 
-```
+```cpp
 namespace bst { 
-   template<typename T> class treap
+   template<typename T> class treap;
  }
  ```
- 
- 
-## Member types:
- 
-``` typedef node<T>* pnode; ```
 
 ## Member functions:
 
-1. ```bool find(T key) ``` -- поиск по ключу. Помеченные как удаленные при удалении ```remove``` элементы не ищутся этой функцией
+1. ``` bool find(T key) ``` -- поиск по ключу. Помеченные как удаленные при удалении ```remove``` элементы не ищутся этой функцией
 
 2. ```bool was(T key)``` -- поиск по ключу. Находит и удалённые при помощи ```remove``` элементы
 
@@ -45,4 +46,8 @@ namespace bst {
 
 10. ```T k_max(T key)``` --- возвращает k-й максимум в дереве
 
+# Usage 
 
+```cpp
+#include <my_dev/treap.hpp>
+```
